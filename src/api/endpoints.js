@@ -3,6 +3,7 @@ import axiosClient from './axiosClient';
 export const authAPI = {
   login: (data) => axiosClient.post('/auth/login', data),
   registerOwner: (data) => axiosClient.post('/auth/register-owner', data),
+  claimStudent: (data) => axiosClient.post('/auth/claim-student', data),
   checkHealth: () => axiosClient.get('/auth/health'),
 };
 
@@ -17,6 +18,7 @@ export const studentAPI = {
   create: (data) => axiosClient.post('/students', data),
   update: (id, data) => axiosClient.put(`/students/${id}`, data),
   delete: (id) => axiosClient.delete(`/students/${id}`),
+  getDashboard: () => axiosClient.get('/students/me/dashboard'),
 };
 
 export const roomAPI = {
@@ -31,6 +33,7 @@ export const leaseAPI = {
   getByStudent: (studentId) => axiosClient.get(`/leases/student/${studentId}`),
   create: (data) => axiosClient.post('/leases', data),
   delete: (id) => axiosClient.delete(`/leases/${id}`),
+  assign: (data) => axiosClient.post('/leases/assign', data),
 };
 
 export const paymentAPI = {

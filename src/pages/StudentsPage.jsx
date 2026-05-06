@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { studentAPI } from '../api/endpoints';
+import { studentAPI, leaseAPI, roomAPI } from '../api/endpoints';
 import Modal from '../components/Modal';
 import Toast from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { Plus, Edit2, Trash2, Search, User, FileText, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, User, FileText, Image as ImageIcon, Home, Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
 import CloudinaryUploadWidget from '../components/CloudinaryUploadWidget';
 
 const StudentsPage = () => {
   const [students, setStudents] = useState([]);
+  const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLeaseModalOpen, setIsLeaseModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [leaseData, setLeaseData] = useState({
+    roomId: '',
+    agreedMonthlyRent: '',
+    startDate: new Date().toISOString().split('T')[0],
+    billingAnchorDate: 1
+  });
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -23,6 +33,7 @@ const StudentsPage = () => {
 
   useEffect(() => {
     fetchStudents();
+    fetchRooms();
   }, []);
 
   const fetchStudents = async () => {
@@ -34,6 +45,33 @@ const StudentsPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchRooms = async () => {
+    try {
+      const res = await roomAPI.getAll();
+      setRooms(res.data);
+    } catch (err) {}
+  };
+
+  const handleLeaseSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await leaseAPI.assign({
+        ...leaseData,
+        studentId: selectedStudent.id,
+        agreedMonthlyRent: parseFloat(leaseData.agreedMonthlyRent)
+      });
+      setIsLeaseModalOpen(false);
+      fetchStudents();
+    } catch (err) {
+      setError('Failed to assign room');
+    }
+  };
+
+  const openLeaseModal = (student) => {
+    setSelectedStudent(student);
+    setIsLeaseModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
@@ -133,6 +171,7 @@ const StudentsPage = () => {
                 <tr className="bg-slate-900/80 text-slate-400 text-sm uppercase tracking-wider">
                   <th className="p-4 font-medium">Name</th>
                   <th className="p-4 font-medium">Phone</th>
+                  <th className="p-4 font-medium">Room</th>
                   <th className="p-4 font-medium">Added On</th>
                   <th className="p-4 font-medium text-right">Actions</th>
                 </tr>
@@ -151,17 +190,22 @@ const StudentsPage = () => {
                       </td>
                       <td className="p-4">{student.phoneNumber}</td>
                       <td className="p-4">
-                        {student.aadharUrl ? (
-                          <a href={student.aadharUrl} target="_blank" rel="noreferrer" className="flex items-center text-blue-400 hover:text-blue-300 text-xs font-bold bg-blue-500/10 px-2 py-1 rounded-lg w-fit transition-all">
-                            <ImageIcon size={14} className="mr-1" /> View ID
-                          </a>
+                        {student.roomNumber ? (
+                          <div className="flex items-center text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-full w-fit text-xs">
+                            <Home size={12} className="mr-1" /> {student.roomNumber}
+                          </div>
                         ) : (
-                          <span className="text-slate-500 text-xs italic">No ID Vaulted</span>
+                          <button 
+                            onClick={() => openLeaseModal(student)}
+                            className="flex items-center text-blue-400 hover:bg-blue-500/20 px-3 py-1 rounded-full text-xs font-bold border border-blue-500/30 transition-all animate-pulse"
+                          >
+                            Assign Room
+                          </button>
                         )}
                       </td>
                       <td className="p-4">{new Date(student.createdAt).toLocaleDateString()}</td>
-                      <td className="p-4 text-right">
-                        <button onClick={() => openEditModal(student)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors mr-2">
+                      <td className="p-4 text-right flex items-center justify-end gap-2">
+                        <button onClick={() => openEditModal(student)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button onClick={() => handleDelete(student.id)} className="p-2 text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors">
@@ -172,7 +216,7 @@ const StudentsPage = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="p-8 text-center text-slate-500">
+                    <td colSpan="5" className="p-8 text-center text-slate-500">
                       <User className="w-12 h-12 mx-auto mb-3 opacity-20" />
                       No students found.
                     </td>
@@ -223,6 +267,64 @@ const StudentsPage = () => {
           </div>
           <button type="submit" className="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-lg transition-colors">
             {editingId ? 'Update Student' : 'Save Student'}
+          </button>
+        </form>
+      </Modal>
+
+      {/* Room Allocation Modal */}
+      <Modal isOpen={isLeaseModalOpen} onClose={() => setIsLeaseModalOpen(false)} title="Assign Student to Room">
+        <form onSubmit={handleLeaseSubmit} className="space-y-6">
+          <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
+            <p className="text-xs text-slate-500 uppercase tracking-widest font-bold mb-1">Assigning Room For</p>
+            <h4 className="text-xl font-bold text-white">{selectedStudent?.fullName}</h4>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Select Room</label>
+              <select 
+                required 
+                value={leaseData.roomId}
+                onChange={(e) => {
+                  const room = rooms.find(r => r.id === e.target.value);
+                  setLeaseData({...leaseData, roomId: e.target.value, agreedMonthlyRent: room?.defaultPrice || ''});
+                }}
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500"
+              >
+                <option value="">Select a room...</option>
+                {rooms.map(room => (
+                  <option key={room.id} value={room.id}>Room {room.roomNumber} ({room.capacity} beds)</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Agreed Monthly Rent</label>
+                <input 
+                  required 
+                  type="number" 
+                  value={leaseData.agreedMonthlyRent}
+                  onChange={(e) => setLeaseData({...leaseData, agreedMonthlyRent: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="₹"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Joining Date</label>
+                <input 
+                  required 
+                  type="date" 
+                  value={leaseData.startDate}
+                  onChange={(e) => setLeaseData({...leaseData, startDate: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+            Confirm Room Assignment <ArrowRight size={20} />
           </button>
         </form>
       </Modal>

@@ -14,6 +14,7 @@ import PendingDuesPage from './pages/PendingDuesPage';
 import ExpensesPage from './pages/ExpensesPage';
 import NoticesPage from './pages/NoticesPage';
 import SettingsPage from './pages/SettingsPage';
+import ClaimAccount from './pages/ClaimAccount';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SuperAdminPage from './pages/SuperAdminPage';
 import SubscriptionExpiredPage from './pages/SubscriptionExpiredPage';
@@ -34,6 +35,7 @@ function App() {
         <Toaster position="top-right" reverseOrder={false} />
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/claim" element={<ClaimAccount />} />
           
           <Route path="/subscription-expired" element={<SubscriptionExpiredPage />} />
           
