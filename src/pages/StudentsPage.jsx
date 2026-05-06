@@ -1,9 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { studentAPI } from '../api/endpoints';
-import Modal from '../components/Modal';
-import Toast from '../components/Toast';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { Plus, Edit2, Trash2, Search, User } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, User, FileText, Image as ImageIcon } from 'lucide-react';
+import CloudinaryUploadWidget from '../components/CloudinaryUploadWidget';
 
 const StudentsPage = () => {
   const [students, setStudents] = useState([]);
@@ -143,6 +139,15 @@ const StudentsPage = () => {
                         </div>
                       </td>
                       <td className="p-4">{student.phoneNumber}</td>
+                      <td className="p-4">
+                        {student.aadharUrl ? (
+                          <a href={student.aadharUrl} target="_blank" rel="noreferrer" className="flex items-center text-blue-400 hover:text-blue-300 text-xs font-bold bg-blue-500/10 px-2 py-1 rounded-lg w-fit transition-all">
+                            <ImageIcon size={14} className="mr-1" /> View ID
+                          </a>
+                        ) : (
+                          <span className="text-slate-500 text-xs italic">No ID Vaulted</span>
+                        )}
+                      </td>
                       <td className="p-4">{new Date(student.createdAt).toLocaleDateString()}</td>
                       <td className="p-4 text-right">
                         <button onClick={() => openEditModal(student)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors mr-2">
@@ -181,6 +186,29 @@ const StudentsPage = () => {
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">Date of Birth (Optional)</label>
             <input type="date" name="dob" value={formData.dob} onChange={(e) => setFormData({...formData, dob: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500" />
+          </div>
+          <div className="pt-2">
+            <label className="block text-sm font-medium text-slate-300 mb-2 italic">Identity Vault (Aadhar/ID)</label>
+            {formData.aadharUrl ? (
+              <div className="flex items-center justify-between bg-slate-800 p-3 rounded-xl border border-blue-500/30">
+                <div className="flex items-center gap-3">
+                  <ImageIcon className="text-blue-400" />
+                  <span className="text-xs text-slate-300 truncate max-w-[150px]">Document Secured</span>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={() => setFormData({...formData, aadharUrl: ''})}
+                  className="text-rose-400 hover:text-rose-300 text-xs font-bold"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <CloudinaryUploadWidget 
+                onUploadSuccess={(url) => setFormData({...formData, aadharUrl: url})} 
+                folder="student_ids"
+              />
+            )}
           </div>
           <button type="submit" className="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-lg transition-colors">
             {editingId ? 'Update Student' : 'Save Student'}

@@ -1,11 +1,27 @@
 import React, { useContext } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Home, Users, Key, FileText, IndianRupee, MessageCircle, Settings, LogOut } from 'lucide-react';
+import { useRealTimeSync } from '../hooks/useRealTimeSync';
+import { 
+  LayoutDashboard, 
+  Users, 
+  BedDouble, 
+  FileText, 
+  IndianRupee, 
+  Receipt,
+  Megaphone,
+  Settings, 
+  LogOut, 
+  Menu, 
+  X 
+} from 'lucide-react';
 
 const DashboardLayout = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  
+  // Activate Real-Time Sync
+  useRealTimeSync(user?.hostelId);
 
   const handleLogout = () => {
     logout();
@@ -18,6 +34,8 @@ const DashboardLayout = () => {
     { name: 'Rooms', path: '/rooms', icon: <Key className="w-5 h-5" /> },
     { name: 'Leases', path: '/leases', icon: <FileText className="w-5 h-5" /> },
     { name: 'Payments', path: '/payments', icon: <IndianRupee className="w-5 h-5" /> },
+    { name: 'Expenses', path: '/expenses', icon: <Receipt className="w-5 h-5" /> },
+    { name: 'Notices', path: '/notices', icon: <Megaphone className="w-5 h-5" /> },
     { name: 'Pending Dues', path: '/pending-dues', icon: <MessageCircle className="w-5 h-5" /> },
   ];
 

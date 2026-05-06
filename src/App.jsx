@@ -9,13 +9,20 @@ import RoomsPage from './pages/RoomsPage';
 import LeasesPage from './pages/LeasesPage';
 import PaymentsPage from './pages/PaymentsPage';
 import PendingDuesPage from './pages/PendingDuesPage';
+import ExpensesPage from './pages/ExpensesPage';
+import NoticesPage from './pages/NoticesPage';
+import SettingsPage from './pages/SettingsPage';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SuperAdminPage from './pages/SuperAdminPage';
+import SubscriptionExpiredPage from './pages/SubscriptionExpiredPage';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        
+        <Route path="/subscription-expired" element={<SubscriptionExpiredPage />} />
         
         {/* Protected Routes for Owner */}
         <Route element={<ProtectedRoute />}>
@@ -26,6 +33,10 @@ function App() {
             <Route path="/leases" element={<LeasesPage />} />
             <Route path="/payments" element={<PaymentsPage />} />
             <Route path="/pending-dues" element={<PendingDuesPage />} />
+            <Route path="/expenses" element={<ExpensesPage />} />
+            <Route path="/notices" element={<NoticesPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/admin" element={<SuperAdminDashboard />} />
           </Route>
         </Route>
 

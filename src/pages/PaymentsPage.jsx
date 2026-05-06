@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { paymentAPI, studentAPI } from '../api/endpoints';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../api/axiosClient';
 import Modal from '../components/Modal';
 import Toast from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Plus, IndianRupee, Trash2 } from 'lucide-react';
 
 const PaymentsPage = () => {
-  const [payments, setPayments] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [formData, setFormData] = useState({
     studentId: '',
     amount: '',
@@ -20,47 +17,64 @@ const PaymentsPage = () => {
     referenceNotes: ''
   });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data: payments, isLoading: isLoadingPayments } = useQuery({
+    queryKey: ['payments'],
+    queryFn: () => api.get('/api/payments').then(res => res.data)
+  });
 
-  const fetchData = async () => {
-    try {
-      const [paymentsRes, studentsRes] = await Promise.all([
-        paymentAPI.getAll(),
-        studentAPI.getAll()
-      ]);
-      setPayments(paymentsRes.data);
-      setStudents(studentsRes.data);
-    } catch (err) {
-      setError('Failed to fetch data');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: students } = useQuery({
+    queryKey: ['students'],
+    queryFn: () => api.get('/api/students').then(res => res.data)
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await paymentAPI.record(formData);
+  const recordMutation = useMutation({
+    mutationFn: (newPayment) => api.post('/api/payments', newPayment),
+    onMutate: async (newPayment) => {
+      // Optimistic Update
+      await queryClient.cancelQueries({ queryKey: ['payments'] });
+      const previousPayments = queryClient.getQueryData(['payments']);
+      
+      const student = students?.find(s => s.id === newPayment.studentId);
+      const optimisticPayment = { 
+        ...newPayment, 
+        id: Math.random().toString(), 
+        studentName: student?.fullName || 'Processing...',
+        isOptimistic: true 
+      };
+
+      queryClient.setQueryData(['payments'], (old) => [optimisticPayment, ...(old || [])]);
+      return { previousPayments };
+    },
+    onError: (err, newPayment, context) => {
+      queryClient.setQueryData(['payments'], context.previousPayments);
+      setError('Failed to record payment. Please try again.');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-metrics'] });
+    },
+    onSuccess: () => {
       setIsModalOpen(false);
-      fetchData();
       setFormData({ ...formData, amount: '', referenceNotes: '' });
-    } catch (err) {
-      setError(err.response?.data?.details || err.response?.data?.message || 'Failed to record payment');
-      setLoading(false);
     }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => api.delete(`/api/payments/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-metrics'] });
+    }
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    recordMutation.mutate(formData);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
     if (window.confirm('Delete this payment record? This action will be audited.')) {
-      try {
-        await paymentAPI.delete(id);
-        fetchData();
-      } catch (err) {
-        setError('Failed to delete payment');
-      }
+      deleteMutation.mutate(id);
     }
   };
 
@@ -92,7 +106,7 @@ const PaymentsPage = () => {
       </div>
 
       <div className="glass-dark rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
-        {loading ? (
+        {isLoadingPayments ? (
           <LoadingSpinner />
         ) : (
           <div className="overflow-x-auto">
@@ -108,9 +122,9 @@ const PaymentsPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/50 text-slate-300">
-                {payments.length > 0 ? (
+                {payments?.length > 0 ? (
                   payments.map((payment) => (
-                    <tr key={payment.id} className="hover:bg-slate-800/30 transition-colors">
+                    <tr key={payment.id} className={`hover:bg-slate-800/30 transition-colors ${payment.isOptimistic ? 'opacity-50 grayscale' : ''}`}>
                       <td className="p-4 text-sm">{new Date(payment.paymentDate).toLocaleDateString()}</td>
                       <td className="p-4 font-medium text-white">{payment.studentName}</td>
                       <td className="p-4 text-emerald-400 font-bold">₹{payment.amount}</td>
@@ -143,7 +157,7 @@ const PaymentsPage = () => {
             <label className="block text-sm font-medium text-slate-300 mb-1">Student</label>
             <select required value={formData.studentId} onChange={(e) => setFormData({...formData, studentId: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
               <option value="">-- Select Student --</option>
-              {students.map(s => <option key={s.id} value={s.id}>{s.fullName}</option>)}
+              {students?.map(s => <option key={s.id} value={s.id}>{s.fullName}</option>)}
             </select>
           </div>
           <div>

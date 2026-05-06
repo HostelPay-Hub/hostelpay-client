@@ -27,6 +27,8 @@ axiosClient.interceptors.response.use(
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
       window.location.href = '/login';
+    } else if (error.response?.status === 403 && error.response.data?.error?.includes('Subscription')) {
+      window.location.href = '/subscription-expired';
     }
     return Promise.reject(error);
   }
