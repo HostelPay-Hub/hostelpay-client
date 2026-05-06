@@ -10,6 +10,9 @@ import {
   IndianRupee, 
   Receipt,
   Megaphone,
+  MessageCircle,
+  Key,
+  Home,
   Settings, 
   LogOut, 
   Menu, 
@@ -29,14 +32,15 @@ const DashboardLayout = () => {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
+    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
     { name: 'Students', path: '/students', icon: <Users className="w-5 h-5" /> },
-    { name: 'Rooms', path: '/rooms', icon: <Key className="w-5 h-5" /> },
+    { name: 'Rooms', path: '/rooms', icon: <BedDouble className="w-5 h-5" /> },
     { name: 'Leases', path: '/leases', icon: <FileText className="w-5 h-5" /> },
     { name: 'Payments', path: '/payments', icon: <IndianRupee className="w-5 h-5" /> },
     { name: 'Expenses', path: '/expenses', icon: <Receipt className="w-5 h-5" /> },
     { name: 'Notices', path: '/notices', icon: <Megaphone className="w-5 h-5" /> },
     { name: 'Pending Dues', path: '/pending-dues', icon: <MessageCircle className="w-5 h-5" /> },
+    { name: 'Settings', path: '/settings', icon: <Settings className="w-5 h-5" /> },
   ];
 
   if (user?.role === 'SUPER_ADMIN') {
