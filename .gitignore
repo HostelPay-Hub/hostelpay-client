@@ -1,0 +1,30 @@
+# Vite
+dist/
+*.local
+.vite/
+
+# Node
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+*.tgz
