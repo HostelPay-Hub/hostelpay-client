@@ -181,7 +181,7 @@ const SettingsPage = () => {
       </div>
 
       <div className="text-center text-[10px] text-slate-600 font-bold uppercase tracking-widest">
-        HostelPay Hub v1.5.0 • Build 2026.05.06
+        HostelPay Hub v1.5.0 • Build 2026.05.06-REDPLOY-SYNC
       </div>
     </div>
   );
