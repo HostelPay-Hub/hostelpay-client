@@ -39,4 +39,5 @@ axiosClient.interceptors.response.use(
   }
 );
 
+export const api = axiosClient;
 export default axiosClient;

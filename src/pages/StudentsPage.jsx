@@ -1,3 +1,8 @@
+import React, { useState, useEffect } from 'react';
+import { studentAPI } from '../api/endpoints';
+import Modal from '../components/Modal';
+import Toast from '../components/Toast';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { Plus, Edit2, Trash2, Search, User, FileText, Image as ImageIcon } from 'lucide-react';
 import CloudinaryUploadWidget from '../components/CloudinaryUploadWidget';
 
