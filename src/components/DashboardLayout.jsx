@@ -46,6 +46,14 @@ const DashboardLayout = () => {
   if (user?.role === 'SUPER_ADMIN') {
     navItems.length = 0;
     navItems.push({ name: 'Admin Panel', path: '/admin', icon: <Settings className="w-5 h-5" /> });
+  } else if (user?.role === 'STUDENT') {
+    navItems.length = 0;
+    navItems.push(
+      { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+      { name: 'Payment History', path: '/payments', icon: <IndianRupee className="w-5 h-5" /> },
+      { name: 'Notices', path: '/notices', icon: <Megaphone className="w-5 h-5" /> },
+      { name: 'Settings', path: '/settings', icon: <Settings className="w-5 h-5" /> }
+    );
   }
 
   return (
