@@ -21,8 +21,8 @@ const CloudinaryUploadWidget = ({ onUploadSuccess, folder = 'hostelpay_docs' }) 
 
     const myWidget = window.cloudinary.createUploadWidget(
       {
-        cloudName: 'demo', // USER: Replace with your Cloudinary Cloud Name
-        uploadPreset: 'ml_default', // USER: Replace with your Unsigned Upload Preset
+        cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'demo',
+        uploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'ml_default',
         folder: folder,
         sources: ['local', 'camera', 'url'],
         multiple: false,

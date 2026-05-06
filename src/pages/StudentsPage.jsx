@@ -39,11 +39,17 @@ const StudentsPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    const dataToSubmit = {
+      ...formData,
+      dob: formData.dob === "" ? null : formData.dob,
+      aadharUrl: formData.aadharUrl === "" ? null : formData.aadharUrl
+    };
+
     try {
       if (editingId) {
-        await studentAPI.update(editingId, formData);
+        await studentAPI.update(editingId, dataToSubmit);
       } else {
-        await studentAPI.create(formData);
+        await studentAPI.create(dataToSubmit);
       }
       setIsModalOpen(false);
       fetchStudents();
