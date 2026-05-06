@@ -47,3 +47,8 @@ export const adminAPI = {
   getAllHostels: () => axiosClient.get('/admin/hostels'),
   toggleSubscription: (id, active) => axiosClient.put(`/admin/hostels/${id}/subscription?active=${active}`),
 };
+
+export const hostelAPI = {
+  getMe: () => axiosClient.get('/hostels/me'),
+  updateMe: (data) => axiosClient.put('/hostels/me', data),
+};

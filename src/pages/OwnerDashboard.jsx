@@ -130,11 +130,26 @@ const OwnerDashboard = () => {
 
       {/* The Hit List (Phase 8) */}
       <div className="premium-card">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-white">Pending Dues (The Hit List)</h3>
-          <span className="px-3 py-1 bg-rose-500/20 text-rose-400 rounded-full text-xs font-bold">
-            {pendingDues.length} Pending
-          </span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 className="text-xl font-bold text-white">Pending Dues (The Hit List)</h3>
+            <span className="inline-block mt-1 px-3 py-1 bg-rose-500/20 text-rose-400 rounded-full text-xs font-bold uppercase tracking-wider">
+              {pendingDues.length} Pending
+            </span>
+          </div>
+          
+          <button 
+            onClick={() => {
+              if (metrics?.whatsappGroupUrl) {
+                window.open(metrics.whatsappGroupUrl, '_blank');
+              } else {
+                toast('Please set your Hostel Group Link in Settings first!', { icon: '📢' });
+              }
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] font-bold animate-glow"
+          >
+            <MessageSquare size={20} /> Broadcast to Group
+          </button>
         </div>
 
         <div className="overflow-x-auto">
@@ -144,7 +159,7 @@ const OwnerDashboard = () => {
                 <th className="pb-4 font-medium">Student</th>
                 <th className="pb-4 font-medium">Room</th>
                 <th className="pb-4 font-medium">Amount</th>
-                <th className="pb-4 font-medium text-right">Remind</th>
+                <th className="pb-4 font-medium text-right">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50">
@@ -154,12 +169,9 @@ const OwnerDashboard = () => {
                   <td className="py-4 text-slate-400">Room {item.roomNumber}</td>
                   <td className="py-4 font-bold text-rose-400">₹{item.pendingAmount}</td>
                   <td className="py-4 text-right">
-                    <button 
-                      onClick={() => sendWhatsAppReminder(item)}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600/10 text-emerald-400 rounded-xl hover:bg-emerald-600 hover:text-white transition-all font-bold text-xs"
-                    >
-                      <MessageSquare size={14} /> WhatsApp
-                    </button>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 border border-slate-800 px-2 py-1 rounded">
+                      Overdue
+                    </span>
                   </td>
                 </tr>
               ))}
