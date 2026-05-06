@@ -19,10 +19,17 @@ const CloudinaryUploadWidget = ({ onUploadSuccess, folder = 'hostelpay_docs' }) 
   const openWidget = () => {
     if (!loaded) return;
 
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'demo';
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'ml_default';
+
+    console.log('--- Cloudinary Config ---');
+    console.log('Cloud:', cloudName);
+    console.log('Preset:', uploadPreset);
+
     const myWidget = window.cloudinary.createUploadWidget(
       {
-        cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'demo',
-        uploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'ml_default',
+        cloudName: cloudName,
+        uploadPreset: uploadPreset,
         folder: folder,
         sources: ['local', 'camera', 'url'],
         multiple: false,
