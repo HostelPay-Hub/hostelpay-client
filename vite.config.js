@@ -13,18 +13,7 @@ export default defineConfig({
         short_name: 'HostelPay',
         description: 'Premium Hostel Management & Rent Ledger',
         theme_color: '#4f46e5',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
+        icons: [] // Add pwa-192x192.png and pwa-512x512.png to /public to enable
       }
     })
   ],
